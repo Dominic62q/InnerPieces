@@ -19,16 +19,14 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('profile') # Redirect to profile after signup
+            return redirect('profile')
     else:
         form = UserRegisterForm()
     return render(request, 'blog/register.html', {'form': form})
 
 @login_required(login_url='login')
 def profile(request):
-    # Get only the logged-in user's posts
     user_posts = Post.objects.filter(author=request.user).order_by('-created_at')
-    
     context = {
         'user_posts': user_posts,
         'post_count': user_posts.count(),
@@ -38,25 +36,23 @@ def profile(request):
 # -------- TEMPLATE VIEWS --------
 
 def home(request):
-    if request.user.is_authenticated:
-        # Show global latest posts to logged-in users
-        posts = Post.objects.filter(published=True).order_by('-created_at')[:6]
-    else:
-        posts = None 
+    # OPEN ACCESS: Everyone sees the latest posts
+    posts = Post.objects.filter(published=True).order_by('-created_at')[:6]
     return render(request, "blog/home.html", {"posts": posts})
 
-@login_required(login_url='login')
 def blog_list(request):
+    # OPEN ACCESS: Everyone can browse the archive
     posts = Post.objects.filter(published=True).order_by('-created_at')
     return render(request, "blog/blog_list.html", {"posts": posts})
 
-@login_required(login_url='login')
 def blog_detail(request, slug):
+    # OPEN ACCESS: Everyone can read stories
     post = get_object_or_404(Post, slug=slug, published=True)
     return render(request, "blog/blog_detail.html", {"post": post})
 
 @login_required(login_url='login')
 def create_post(request):
+    # RESTRICTED: Only logged-in users can write
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():

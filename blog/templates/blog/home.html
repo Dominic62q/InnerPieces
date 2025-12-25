@@ -2,135 +2,150 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
-    <div class="container" style="padding-top: 2rem;">
+<div class="container" style="padding-top: 2rem;">
+    
+    <div class="magazine-layout">
         
-        <div class="magazine-layout">
-            
-            <section class="main-feature">
-                <h3 class="section-label">Editor's Pick</h3>
-                {% if posts %}
-                    {% with featured=posts.0 %}
-                    <a href="{% url 'blog_detail' featured.slug %}" class="hero-card">
-                        <div class="hero-img">
-                            {% if featured.image %}
-                                <img src="{{ featured.image.url }}" alt="{{ featured.title }}">
-                            {% else %}
-                                <div class="placeholder-img">Inner Pieces</div>
-                            {% endif %}
+        <section class="main-feature">
+            <h3 class="section-label">Editor's Pick</h3>
+            {% if posts %}
+                {% with featured=posts.0 %}
+                <a href="{% url 'blog_detail' featured.slug %}" class="hero-card">
+                    <div class="hero-img">
+                        {% if featured.image %}
+                            <img src="{{ featured.image.url }}" alt="{{ featured.title }}">
+                        {% else %}
+                            <div class="placeholder-img">Inner Pieces</div>
+                        {% endif %}
+                    </div>
+                    <div class="hero-content">
+                        <span class="category-tag">Featured Story</span>
+                        <h2>{{ featured.title }}</h2>
+                        <p>{{ featured.excerpt|truncatewords:25 }}</p>
+                        <div class="meta">
+                            <span>{{ featured.author.username }}</span> &bull; <span>{{ featured.created_at|date:"M d" }}</span>
                         </div>
-                        <div class="hero-content">
-                            <span class="category-tag">Featured Story</span>
-                            <h2>{{ featured.title }}</h2>
-                            <p>{{ featured.excerpt|truncatewords:25 }}</p>
-                            <div class="meta">
-                                <span>{{ featured.author.username }}</span> &bull; <span>{{ featured.created_at|date:"M d" }}</span>
-                            </div>
-                        </div>
-                    </a>
-                    {% endwith %}
-                {% else %}
-                    <div class="empty-state">No stories yet. Be the first to write.</div>
-                {% endif %}
-            </section>
-
-            <aside class="sidebar-list">
-                <h3 class="section-label">Fresh Reads</h3>
-                <div class="list-wrapper">
-                    {% for post in posts|slice:"1:5" %}
-                    <a href="{% url 'blog_detail' post.slug %}" class="list-item">
-                        <div class="list-content">
-                            <h4>{{ post.title }}</h4>
-                            <span class="list-meta">{{ post.author.username }} &bull; {{ post.created_at|date:"M d" }}</span>
-                        </div>
-                        <div class="list-thumb">
-                            {% if post.image %}
-                                <img src="{{ post.image.url }}">
-                            {% else %}
-                                <div class="placeholder-thumb"></div>
-                            {% endif %}
-                        </div>
-                    </a>
-                    {% empty %}
-                        <p class="text-muted">More stories coming soon.</p>
-                    {% endfor %}
+                    </div>
+                </a>
+                {% endwith %}
+            {% else %}
+                <div class="empty-state glass-card">
+                    <h3>The canvas is empty.</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Be the first voice in the sanctuary.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'create_post' %}" class="btn-write">Write a Story</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn-write">Login to Write</a>
+                    {% endif %}
                 </div>
-                <div style="margin-top: 1.5rem;">
-                    <a href="{% url 'blog_list' %}" class="btn-link">View Full Archive &rarr;</a>
-                </div>
-            </aside>
+            {% endif %}
+        </section>
 
-        </div>
-    </div>
-
-    <style>
-        .magazine-layout {
-            display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;
-            align-items: start;
-        }
-        .section-label {
-            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px;
-            color: var(--accent-primary); margin-bottom: 1rem; font-weight: 600;
-        }
-
-        /* Hero Card */
-        .hero-card {
-            display: block; background: var(--bg-glass); border: 1px solid var(--border-glass);
-            border-radius: var(--radius-lg); overflow: hidden; transition: 0.3s;
-        }
-        .hero-card:hover { transform: translateY(-3px); border-color: var(--accent-primary); }
-        .hero-img { height: 400px; overflow: hidden; }
-        .hero-img img { width: 100%; height: 100%; object-fit: cover; }
-        .placeholder-img { width: 100%; height: 100%; background: var(--bg-glass-hover); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
-        
-        .hero-content { padding: 2rem; }
-        .hero-content h2 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; line-height: 1.2; margin: 0.5rem 0 1rem; color: var(--text-main); }
-        .hero-content p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.5rem; }
-        .category-tag { font-size: 0.7rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-        .meta { font-size: 0.85rem; color: var(--text-muted); }
-
-        /* Sidebar List */
-        .list-wrapper { display: flex; flex-direction: column; gap: 1rem; }
-        .list-item { 
-            display: flex; justify-content: space-between; gap: 1rem; 
-            padding: 1rem; border-radius: var(--radius-md); 
-            background: var(--bg-glass); border: 1px solid var(--border-glass);
-            transition: 0.2s;
-        }
-        .list-item:hover { background: var(--bg-glass-hover); border-color: var(--accent-primary); }
-        .list-content h4 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main); line-height: 1.4; }
-        .list-meta { font-size: 0.75rem; color: var(--text-muted); }
-        .list-thumb { width: 70px; height: 70px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
-        .list-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .placeholder-thumb { width: 100%; height: 100%; background: var(--bg-glass-hover); }
-
-        .btn-link { font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-glass); padding-bottom: 2px; }
-
-        @media(max-width: 800px) {
-            .magazine-layout { grid-template-columns: 1fr; gap: 3rem; }
-            .hero-img { height: 250px; }
-        }
-    </style>
-
-{% else %}
-    <div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; text-align: center;">
-        <div style="max-width: 600px; padding: 2rem;">
-            <span style="color: var(--accent-primary); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.8rem; display: block; margin-bottom: 1.5rem;">Sanctuary</span>
-            
-            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem; color: var(--text-main);">
-                Clarity in the Chaos.
-            </h1>
-            
-            <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2.5rem; line-height: 1.6;">
-                A quiet space to read, write, and reflect. Join the Inner Pieces community.
-            </p>
-            
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <a href="{% url 'register' %}" style="background: var(--text-main); color: var(--bg-body); padding: 12px 30px; border-radius: 50px; font-weight: 600; font-size: 0.9rem;">Start Reading</a>
-                <a href="{% url 'login' %}" style="border: 1px solid var(--border-glass); color: var(--text-main); padding: 12px 30px; border-radius: 50px; font-weight: 600; font-size: 0.9rem;">Log In</a>
+        <aside class="sidebar-list">
+            <h3 class="section-label">Fresh Reads</h3>
+            <div class="list-wrapper">
+                {% for post in posts|slice:"1:5" %}
+                <a href="{% url 'blog_detail' post.slug %}" class="list-item">
+                    <div class="list-content">
+                        <h4>{{ post.title }}</h4>
+                        <span class="list-meta">{{ post.author.username }} &bull; {{ post.created_at|date:"M d" }}</span>
+                    </div>
+                    <div class="list-thumb">
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}">
+                        {% else %}
+                            <div class="placeholder-thumb"></div>
+                        {% endif %}
+                    </div>
+                </a>
+                {% empty %}
+                    <p class="text-muted">More stories coming soon.</p>
+                {% endfor %}
             </div>
-        </div>
+            
+            {% if posts %}
+            <div style="margin-top: 1.5rem;">
+                <a href="{% url 'blog_list' %}" class="btn-link">View Full Archive &rarr;</a>
+            </div>
+            {% endif %}
+
+            {% if not user.is_authenticated %}
+            <div class="guest-cta glass-card">
+                <h4>Join the Community</h4>
+                <p>Share your own stories and find clarity.</p>
+                <a href="{% url 'register' %}" class="btn-cta">Create Account</a>
+            </div>
+            {% endif %}
+        </aside>
+
     </div>
-{% endif %}
+</div>
+
+<style>
+    .magazine-layout {
+        display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;
+        align-items: start;
+    }
+    .section-label {
+        font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px;
+        color: var(--accent-primary); margin-bottom: 1rem; font-weight: 600;
+    }
+
+    /* Hero Card */
+    .hero-card {
+        display: block; background: var(--bg-glass); border: 1px solid var(--border-glass);
+        border-radius: var(--radius-lg); overflow: hidden; transition: 0.3s;
+    }
+    .hero-card:hover { transform: translateY(-3px); border-color: var(--accent-primary); background: var(--bg-glass-hover); }
+    .hero-img { height: 400px; overflow: hidden; }
+    .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+    .placeholder-img { width: 100%; height: 100%; background: var(--bg-glass-hover); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+    
+    .hero-content { padding: 2rem; }
+    .hero-content h2 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; line-height: 1.2; margin: 0.5rem 0 1rem; color: var(--text-main); }
+    .hero-content p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.5rem; }
+    .category-tag { font-size: 0.7rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .meta { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Sidebar List */
+    .list-wrapper { display: flex; flex-direction: column; gap: 1rem; }
+    .list-item { 
+        display: flex; justify-content: space-between; gap: 1rem; 
+        padding: 1rem; border-radius: var(--radius-md); 
+        background: var(--bg-glass); border: 1px solid var(--border-glass);
+        transition: 0.2s;
+    }
+    .list-item:hover { background: var(--bg-glass-hover); border-color: var(--accent-primary); }
+    .list-content h4 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main); line-height: 1.4; }
+    .list-meta { font-size: 0.75rem; color: var(--text-muted); }
+    .list-thumb { width: 70px; height: 70px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .list-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .placeholder-thumb { width: 100%; height: 100%; background: var(--bg-glass-hover); }
+
+    .btn-link { font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-glass); padding-bottom: 2px; }
+
+    /* Empty State */
+    .empty-state { padding: 3rem; text-align: center; border-radius: var(--radius-lg); }
+    
+    /* Guest CTA Box */
+    .guest-cta {
+        margin-top: 2rem; padding: 1.5rem; text-align: center;
+        border: 1px solid var(--border-glass); border-radius: var(--radius-md);
+        background: var(--bg-glass-hover);
+    }
+    .guest-cta h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.5rem; }
+    .guest-cta p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .btn-cta {
+        display: inline-block; font-size: 0.8rem; font-weight: 600; 
+        color: var(--bg-body); background: var(--text-main);
+        padding: 8px 20px; border-radius: 50px;
+    }
+    .btn-cta:hover { background: var(--accent-primary); color: #fff; }
+
+    @media(max-width: 800px) {
+        .magazine-layout { grid-template-columns: 1fr; gap: 3rem; }
+        .hero-img { height: 250px; }
+    }
+</style>
 
 {% endblock %}
