@@ -34,6 +34,9 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS]
 
+# Add Heroku app domain
+ALLOWED_HOSTS += ['innerpieces-9813729bc1de.herokuapp.com', '.herokuapp.com']
+
 
 # Application definition
 
