@@ -3,28 +3,169 @@
 {% block content %}
 
 <style>
-    .form-container { max-width: 700px; margin: 4rem auto; padding: 0 1rem; }
-    .form-group { margin-bottom: 2rem; }
-    label { display: block; font-family: var(--font-heading); font-size: 1.2rem; margin-bottom: 0.5rem; }
-    .input-field { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 2px; font-family: var(--font-body); font-size: 1rem; }
-    .input-field:focus { border-color: var(--primary-color); outline: none; }
-    .btn-submit { background-color: var(--primary-color); color: white; border: none; padding: 15px 40px; font-size: 1rem; text-transform: uppercase; cursor: pointer; display: block; width: 100%; margin-top: 2rem; }
+    .create-wrapper {
+        display: flex; min-height: 85vh; align-items: center; justify-content: center; padding: 2rem;
+    }
+    
+    .create-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+        border: 1px solid var(--border-glass);
+        width: 100%; max-width: 900px;
+        box-shadow: var(--shadow-soft); border-radius: var(--radius-lg); overflow: hidden;
+    }
+    
+    .create-header {
+        padding: 2.5rem 3rem 2rem;
+        border-bottom: 1px solid var(--border-glass);
+        text-align: center;
+        background: var(--bg-glass-hover);
+    }
+    
+    .create-header h1 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.5rem; font-weight: 400; color: var(--text-main);
+        margin-bottom: 0.5rem;
+    }
+    
+    .create-header p {
+        color: var(--text-muted); font-size: 1rem;
+    }
+    
+    .create-form {
+        padding: 2.5rem 3rem;
+    }
+    
+    .form-group {
+        margin-bottom: 2rem;
+    }
+    
+    .form-group label {
+        display: block; font-size: 0.75rem; text-transform: uppercase;
+        letter-spacing: 2px; color: var(--accent-primary);
+        margin-bottom: 10px; font-weight: 600;
+    }
+    
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group select {
+        width: 100%; padding: 15px 20px;
+        background: var(--bg-glass); border: 1px solid var(--border-glass);
+        border-radius: var(--radius-md); color: var(--text-main);
+        font-family: 'Outfit', sans-serif; font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input[type="text"]:focus,
+    .form-group textarea:focus {
+        outline: none; border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    
+    .form-group textarea {
+        min-height: 200px; resize: vertical; line-height: 1.8;
+    }
+    
+    .form-group input[type="file"] {
+        width: 100%; padding: 15px; background: var(--bg-glass);
+        border: 2px dashed var(--border-glass); border-radius: var(--radius-md);
+        color: var(--text-muted); cursor: pointer; transition: all 0.3s ease;
+    }
+    
+    .form-group input[type="file"]:hover {
+        border-color: var(--accent-primary);
+    }
+    
+    .checkbox-group {
+        display: flex; align-items: center; gap: 12px;
+        padding: 1rem; background: var(--bg-glass-hover);
+        border-radius: var(--radius-md); border: 1px solid var(--border-glass);
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 20px; height: 20px; accent-color: var(--accent-primary); cursor: pointer;
+    }
+    
+    .checkbox-group label {
+        margin: 0; text-transform: none; letter-spacing: 0;
+        font-size: 0.95rem; color: var(--text-main); font-weight: 400;
+    }
+    
+    .btn-submit {
+        width: 100%; padding: 18px; margin-top: 1rem;
+        background: var(--text-main); color: var(--bg-body);
+        border: none; border-radius: 50px; font-size: 0.9rem;
+        font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+        cursor: pointer; transition: all 0.3s ease;
+        position: relative; overflow: hidden;
+    }
+    
+    .btn-submit:hover {
+        background: var(--accent-primary); color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px var(--accent-glow);
+    }
+    
+    .form-tip {
+        font-size: 0.8rem; color: var(--text-muted);
+        margin-top: 0.5rem; font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+        .create-form, .create-header { padding: 1.5rem; }
+        .create-header h1 { font-size: 2rem; }
+    }
 </style>
 
-<div class="form-container">
-    <div style="text-align: center; margin-bottom: 3rem;">
-        <h1 style="font-family: var(--font-heading); font-size: 2.5rem;">Write a Story</h1>
+<div class="create-wrapper">
+    <div class="create-card reveal-scale">
+        <div class="create-header">
+            <h1>✦ Write a Story</h1>
+            <p>Share your thoughts with the Inner Pieces community</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="create-form" id="create-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Title</label>
+                {{ form.title }}
+                <p class="form-tip">Make it captivating - this is the first thing readers see</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Excerpt / Summary</label>
+                {{ form.excerpt }}
+                <p class="form-tip">A brief preview that appears in the story cards</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Cover Image</label>
+                {{ form.image }}
+                <p class="form-tip">Recommended: 1200×630px for best display</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Full Story</label>
+                {{ form.content }}
+            </div>
+            
+            <div class="form-group checkbox-group">
+                {{ form.published }}
+                <label>Publish immediately (visible to everyone)</label>
+            </div>
+            
+            <button type="submit" class="btn-submit">✦ Publish Story</button>
+        </form>
     </div>
-
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group"><label>Title</label>{{ form.title }}</div>
-        <div class="form-group"><label>Excerpt</label>{{ form.excerpt }}</div>
-        <div class="form-group"><label>Cover Image</label>{{ form.image }}</div>
-        <div class="form-group"><label>Full Content</label>{{ form.content }}</div>
-        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">{{ form.published }}<label style="margin: 0; font-size: 1rem;">Publish immediately?</label></div>
-        <button type="submit" class="btn-submit">Publish Story</button>
-    </form>
 </div>
+
+<script>
+    document.getElementById('create-form').addEventListener('submit', function() {
+        if (window.showToast) {
+            window.showToast('Publishing your story...', 'info');
+        }
+    });
+</script>
 
 {% endblock %}

@@ -3,58 +3,254 @@
 {% block content %}
 
 <div class="container" style="padding-top: 2rem;">
-    <div class="page-header">
+    <div class="page-header reveal">
+        <span class="page-tag">✦ Community Stories</span>
         <h2>Explore</h2>
-        <p>{{ posts.count }} Stories from the community</p>
+        <p>{{ posts.count }} {{ posts.count|pluralize:"Story,Stories" }} from the community</p>
     </div>
 
-    <div class="grid-layout">
+    {% if posts %}
+    <div class="filter-bar reveal" style="animation-delay: 0.1s;">
+        <div class="filter-info">
+            Showing all stories
+        </div>
+        <div class="view-toggle">
+            <button class="toggle-btn active" data-view="grid" title="Grid View">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                </svg>
+            </button>
+            <button class="toggle-btn" data-view="list" title="List View">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="grid-layout" id="posts-container">
         {% for post in posts %}
         <article class="glass-card post-card">
             <a href="{% url 'blog_detail' post.slug %}">
                 <div class="card-img">
                     {% if post.image %}
-                        <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy">
                     {% else %}
-                        <div class="placeholder"></div>
+                        <div class="placeholder">
+                            <span class="placeholder-icon">✦</span>
+                        </div>
                     {% endif %}
+                    <div class="card-overlay">
+                        <span class="read-time">{{ post.content|wordcount|divisibleby:200 }} min read</span>
+                    </div>
                 </div>
                 <div class="card-content">
                     <span class="card-cat">Story</span>
                     <h3>{{ post.title }}</h3>
-                    <p>{{ post.excerpt|truncatewords:12 }}</p>
+                    <p class="card-excerpt">{{ post.excerpt|truncatewords:15 }}</p>
                     <div class="card-meta">
-                        <span>{{ post.author.username }}</span>
-                        <span>{{ post.created_at|date:"M d" }}</span>
+                        <div class="author-info">
+                            <span class="author-avatar">{{ post.author.username|slice:":1"|upper }}</span>
+                            <span>{{ post.author.username }}</span>
+                        </div>
+                        <span class="post-date">{{ post.created_at|date:"M d" }}</span>
                     </div>
                 </div>
             </a>
         </article>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon">✦</div>
+            <h3>No stories yet</h3>
+            <p>Be the first to share something beautiful.</p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'create_post' %}" class="btn-cta">Write a Story</a>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn-cta">Join to Write</a>
+            {% endif %}
+        </div>
         {% endfor %}
     </div>
 </div>
 
 <style>
+    .page-header {
+        text-align: center; margin-bottom: 2.5rem;
+    }
+    .page-tag {
+        display: inline-block; font-size: 0.75rem; text-transform: uppercase;
+        letter-spacing: 2px; color: var(--accent-primary); font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    .page-header h2 {
+        font-family: 'Cormorant Garamond', serif; font-size: 3rem;
+        font-weight: 400; color: var(--text-main); margin-bottom: 0.5rem;
+    }
+    .page-header p {
+        color: var(--text-muted); font-size: 1rem;
+    }
+    
+    /* Filter Bar */
+    .filter-bar {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 2rem; padding: 1rem 1.25rem;
+        background: var(--bg-glass); border: 1px solid var(--border-glass);
+        border-radius: var(--radius-md);
+    }
+    .filter-info {
+        font-size: 0.85rem; color: var(--text-muted);
+    }
+    .view-toggle {
+        display: flex; gap: 0.5rem;
+    }
+    .toggle-btn {
+        width: 36px; height: 36px; border-radius: 8px;
+        background: transparent; border: 1px solid var(--border-glass);
+        color: var(--text-muted); cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s ease;
+    }
+    .toggle-btn:hover, .toggle-btn.active {
+        background: var(--accent-primary); border-color: var(--accent-primary);
+        color: #fff;
+    }
+
+    /* Grid Layout */
     .grid-layout {
-        display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;
+    }
+    
+    .grid-layout.list-view {
+        grid-template-columns: 1fr; gap: 1rem;
+    }
+    .grid-layout.list-view .post-card {
+        display: grid; grid-template-columns: 200px 1fr;
+    }
+    .grid-layout.list-view .card-img { height: 150px; }
+    .grid-layout.list-view .card-content { 
+        display: flex; flex-direction: column; justify-content: center;
     }
     
     .post-card { display: flex; flex-direction: column; }
     
-    .card-img { height: 180px; overflow: hidden; border-bottom: 1px solid var(--border-glass); }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-    .post-card:hover .card-img img { transform: scale(1.05); }
-    .placeholder { width: 100%; height: 100%; background: var(--bg-glass-hover); }
+    .card-img { 
+        height: 200px; overflow: hidden; position: relative;
+        border-bottom: 1px solid var(--border-glass); 
+    }
+    .card-img img { 
+        width: 100%; height: 100%; object-fit: cover; 
+        transition: transform 0.6s ease; 
+    }
+    .post-card:hover .card-img img { transform: scale(1.08); }
+    
+    .card-overlay {
+        position: absolute; top: 1rem; right: 1rem;
+        opacity: 0; transition: opacity 0.3s ease;
+    }
+    .post-card:hover .card-overlay { opacity: 1; }
+    .read-time {
+        padding: 0.4rem 0.8rem; background: rgba(0,0,0,0.7);
+        color: #fff; border-radius: 50px; font-size: 0.7rem; font-weight: 500;
+    }
+    
+    .placeholder { 
+        width: 100%; height: 100%; background: var(--bg-glass-hover);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .placeholder-icon { font-size: 2rem; color: var(--text-muted); opacity: 0.3; }
 
-    .card-content { padding: 1.2rem; display: flex; flex-direction: column; flex-grow: 1; }
-    .card-cat { font-size: 0.7rem; text-transform: uppercase; color: var(--accent-primary); font-weight: 600; margin-bottom: 0.5rem; letter-spacing: 1px; }
-    .card-content h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; line-height: 1.2; margin-bottom: 0.5rem; color: var(--text-main); }
-    .card-content p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; flex-grow: 1; }
+    .card-content { 
+        padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; 
+    }
+    .card-cat { 
+        font-size: 0.7rem; text-transform: uppercase; color: var(--accent-primary); 
+        font-weight: 600; margin-bottom: 0.5rem; letter-spacing: 1.5px; 
+    }
+    .card-content h3 { 
+        font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; 
+        line-height: 1.25; margin-bottom: 0.75rem; color: var(--text-main);
+        transition: color 0.3s ease;
+    }
+    .post-card:hover .card-content h3 { color: var(--accent-primary); }
+    
+    .card-excerpt { 
+        font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem; 
+        flex-grow: 1; line-height: 1.6;
+    }
     
     .card-meta { 
-        display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); 
-        padding-top: 0.8rem; border-top: 1px solid var(--border-glass);
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 0.8rem; color: var(--text-muted); 
+        padding-top: 1rem; border-top: 1px solid var(--border-glass);
+    }
+    .author-info {
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    .author-avatar {
+        width: 24px; height: 24px; border-radius: 50%;
+        background: var(--accent-primary); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.65rem; font-weight: 600;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        grid-column: 1 / -1; text-align: center; padding: 5rem 2rem;
+        background: var(--bg-glass); border: 1px solid var(--border-glass);
+        border-radius: var(--radius-lg);
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state h3 {
+        font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;
+        color: var(--text-main); margin-bottom: 0.5rem;
+    }
+    .empty-state p {
+        color: var(--text-muted); margin-bottom: 1.5rem;
+    }
+    .btn-cta {
+        display: inline-block; font-size: 0.85rem; font-weight: 600;
+        color: var(--bg-body); background: var(--text-main);
+        padding: 12px 28px; border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    .btn-cta:hover {
+        background: var(--accent-primary); color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px var(--accent-glow);
+    }
+    
+    @media (max-width: 768px) {
+        .filter-bar { flex-direction: column; gap: 1rem; text-align: center; }
+        .grid-layout.list-view .post-card { grid-template-columns: 1fr; }
     }
 </style>
+
+<script>
+    // View Toggle
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    const container = document.getElementById('posts-container');
+    
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            toggleBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (btn.dataset.view === 'list') {
+                container.classList.add('list-view');
+            } else {
+                container.classList.remove('list-view');
+            }
+        });
+    });
+</script>
 
 {% endblock %}

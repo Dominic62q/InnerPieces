@@ -4,9 +4,16 @@
 
 <div class="container" style="padding-top: 2rem;">
     
+    <!-- Hero Welcome Section -->
+    <div class="welcome-hero reveal">
+        <span class="welcome-tag">✦ A sanctuary for thoughts</span>
+        <h1 class="welcome-title">Find Your Inner <span>Pieces</span></h1>
+        <p class="welcome-sub">Discover stories that inspire, heal, and connect us all.</p>
+    </div>
+    
     <div class="magazine-layout">
         
-        <section class="main-feature">
+        <section class="main-feature reveal-left">
             <h3 class="section-label">Editor's Pick</h3>
             {% if posts %}
                 {% with featured=posts.0 %}
@@ -15,21 +22,29 @@
                         {% if featured.image %}
                             <img src="{{ featured.image.url }}" alt="{{ featured.title }}">
                         {% else %}
-                            <div class="placeholder-img">Inner Pieces</div>
+                            <div class="placeholder-img">
+                                <span class="placeholder-icon">✦</span>
+                            </div>
                         {% endif %}
+                        <div class="hero-overlay"></div>
                     </div>
                     <div class="hero-content">
                         <span class="category-tag">Featured Story</span>
                         <h2>{{ featured.title }}</h2>
                         <p>{{ featured.excerpt|truncatewords:25 }}</p>
                         <div class="meta">
-                            <span>{{ featured.author.username }}</span> &bull; <span>{{ featured.created_at|date:"M d" }}</span>
+                            <div class="author-chip">
+                                <span class="author-avatar-small">{{ featured.author.username|slice:":1"|upper }}</span>
+                                <span>{{ featured.author.username }}</span>
+                            </div>
+                            <span>{{ featured.created_at|date:"M d" }}</span>
                         </div>
                     </div>
                 </a>
                 {% endwith %}
             {% else %}
                 <div class="empty-state glass-card">
+                    <div class="empty-icon">✦</div>
                     <h3>The canvas is empty.</h3>
                     <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Be the first voice in the sanctuary.</p>
                     {% if user.is_authenticated %}
@@ -41,11 +56,12 @@
             {% endif %}
         </section>
 
-        <aside class="sidebar-list">
+        <aside class="sidebar-list reveal-right">
             <h3 class="section-label">Fresh Reads</h3>
             <div class="list-wrapper">
                 {% for post in posts|slice:"1:5" %}
                 <a href="{% url 'blog_detail' post.slug %}" class="list-item">
+                    <div class="list-number">{{ forloop.counter|stringformat:"02d" }}</div>
                     <div class="list-content">
                         <h4>{{ post.title }}</h4>
                         <span class="list-meta">{{ post.author.username }} &bull; {{ post.created_at|date:"M d" }}</span>
@@ -54,23 +70,24 @@
                         {% if post.image %}
                             <img src="{{ post.image.url }}">
                         {% else %}
-                            <div class="placeholder-thumb"></div>
+                            <div class="placeholder-thumb">✦</div>
                         {% endif %}
                     </div>
                 </a>
                 {% empty %}
-                    <p class="text-muted">More stories coming soon.</p>
+                    <p class="text-muted" style="text-align: center; padding: 2rem; color: var(--text-muted);">More stories coming soon.</p>
                 {% endfor %}
             </div>
             
             {% if posts %}
             <div style="margin-top: 1.5rem;">
-                <a href="{% url 'blog_list' %}" class="btn-link">View Full Archive &rarr;</a>
+                <a href="{% url 'blog_list' %}" class="btn-link">View Full Archive <span class="arrow">→</span></a>
             </div>
             {% endif %}
 
             {% if not user.is_authenticated %}
             <div class="guest-cta glass-card">
+                <div class="cta-glow"></div>
                 <h4>Join the Community</h4>
                 <p>Share your own stories and find clarity.</p>
                 <a href="{% url 'register' %}" class="btn-cta">Create Account</a>
@@ -82,69 +99,184 @@
 </div>
 
 <style>
+    /* Welcome Hero */
+    .welcome-hero {
+        text-align: center; padding: 3rem 0 4rem; margin-bottom: 2rem;
+    }
+    .welcome-tag {
+        display: inline-block; font-size: 0.8rem; text-transform: uppercase;
+        letter-spacing: 2px; color: var(--accent-primary); font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    .welcome-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 400;
+        color: var(--text-main); margin-bottom: 1rem; line-height: 1.1;
+    }
+    .welcome-title span { color: var(--accent-primary); font-style: italic; }
+    .welcome-sub {
+        font-size: 1.1rem; color: var(--text-muted); max-width: 500px; margin: 0 auto;
+    }
+
     .magazine-layout {
-        display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;
+        display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem;
         align-items: start;
     }
     .section-label {
-        font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px;
-        color: var(--accent-primary); margin-bottom: 1rem; font-weight: 600;
+        font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
+        color: var(--accent-primary); margin-bottom: 1.25rem; font-weight: 600;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-label::after {
+        content: ''; flex: 1; height: 1px; background: var(--border-glass);
     }
 
     /* Hero Card */
     .hero-card {
         display: block; background: var(--bg-glass); border: 1px solid var(--border-glass);
-        border-radius: var(--radius-lg); overflow: hidden; transition: 0.3s;
+        border-radius: var(--radius-lg); overflow: hidden; transition: all 0.4s ease;
+        position: relative;
     }
-    .hero-card:hover { transform: translateY(-3px); border-color: var(--accent-primary); background: var(--bg-glass-hover); }
-    .hero-img { height: 400px; overflow: hidden; }
-    .hero-img img { width: 100%; height: 100%; object-fit: cover; }
-    .placeholder-img { width: 100%; height: 100%; background: var(--bg-glass-hover); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+    .hero-card:hover { 
+        transform: translateY(-5px); 
+        border-color: var(--accent-primary); 
+        background: var(--bg-glass-hover);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    .hero-img { height: 350px; overflow: hidden; position: relative; }
+    .hero-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+    .hero-card:hover .hero-img img { transform: scale(1.05); }
+    .hero-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%);
+        opacity: 0; transition: opacity 0.3s ease;
+    }
+    .hero-card:hover .hero-overlay { opacity: 1; }
+    
+    .placeholder-img { 
+        width: 100%; height: 100%; background: var(--bg-glass-hover); 
+        display: flex; align-items: center; justify-content: center; 
+        color: var(--text-muted);
+    }
+    .placeholder-icon { font-size: 3rem; opacity: 0.3; }
     
     .hero-content { padding: 2rem; }
-    .hero-content h2 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; line-height: 1.2; margin: 0.5rem 0 1rem; color: var(--text-main); }
-    .hero-content p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.5rem; }
-    .category-tag { font-size: 0.7rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-    .meta { font-size: 0.85rem; color: var(--text-muted); }
+    .hero-content h2 { 
+        font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; 
+        line-height: 1.25; margin: 0.75rem 0 1rem; color: var(--text-main); 
+        transition: color 0.3s ease;
+    }
+    .hero-card:hover .hero-content h2 { color: var(--accent-primary); }
+    .hero-content p { color: var(--text-muted); font-size: 1rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    .category-tag { 
+        font-size: 0.7rem; color: var(--accent-primary); text-transform: uppercase; 
+        letter-spacing: 1.5px; font-weight: 600; 
+    }
+    .meta { 
+        font-size: 0.85rem; color: var(--text-muted); 
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .author-chip {
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    .author-avatar-small {
+        width: 24px; height: 24px; border-radius: 50%;
+        background: var(--accent-primary); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.7rem; font-weight: 600;
+    }
 
     /* Sidebar List */
-    .list-wrapper { display: flex; flex-direction: column; gap: 1rem; }
+    .list-wrapper { display: flex; flex-direction: column; gap: 0.75rem; }
     .list-item { 
-        display: flex; justify-content: space-between; gap: 1rem; 
+        display: flex; align-items: center; gap: 1rem; 
         padding: 1rem; border-radius: var(--radius-md); 
         background: var(--bg-glass); border: 1px solid var(--border-glass);
-        transition: 0.2s;
+        transition: all 0.3s ease;
     }
-    .list-item:hover { background: var(--bg-glass-hover); border-color: var(--accent-primary); }
-    .list-content h4 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main); line-height: 1.4; }
-    .list-meta { font-size: 0.75rem; color: var(--text-muted); }
-    .list-thumb { width: 70px; height: 70px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .list-item:hover { 
+        background: var(--bg-glass-hover); border-color: var(--accent-primary);
+        transform: translateX(5px);
+    }
+    .list-number {
+        font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;
+        color: var(--accent-primary); font-weight: 600; opacity: 0.6;
+        min-width: 30px;
+    }
+    .list-content { flex: 1; min-width: 0; }
+    .list-content h4 { 
+        font-size: 0.95rem; margin-bottom: 0.35rem; color: var(--text-main); 
+        line-height: 1.4; transition: color 0.3s ease;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .list-item:hover .list-content h4 { color: var(--accent-primary); }
+    .list-meta { font-size: 0.7rem; color: var(--text-muted); }
+    .list-thumb { 
+        width: 60px; height: 60px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+        background: var(--bg-glass-hover);
+    }
     .list-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .placeholder-thumb { width: 100%; height: 100%; background: var(--bg-glass-hover); }
+    .placeholder-thumb { 
+        width: 100%; height: 100%; display: flex; align-items: center; 
+        justify-content: center; color: var(--text-muted); font-size: 1.2rem; opacity: 0.3;
+    }
 
-    .btn-link { font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-glass); padding-bottom: 2px; }
+    .btn-link { 
+        font-size: 0.85rem; font-weight: 600; color: var(--text-main); 
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding-bottom: 2px; border-bottom: 1px solid var(--border-glass);
+        transition: all 0.3s ease;
+    }
+    .btn-link:hover { color: var(--accent-primary); border-color: var(--accent-primary); }
+    .btn-link .arrow { transition: transform 0.3s ease; }
+    .btn-link:hover .arrow { transform: translateX(5px); }
 
     /* Empty State */
-    .empty-state { padding: 3rem; text-align: center; border-radius: var(--radius-lg); }
+    .empty-state { 
+        padding: 4rem 2rem; text-align: center; border-radius: var(--radius-lg);
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state h3 {
+        font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;
+        color: var(--text-main); margin-bottom: 0.5rem;
+    }
     
     /* Guest CTA Box */
     .guest-cta {
-        margin-top: 2rem; padding: 1.5rem; text-align: center;
+        margin-top: 2rem; padding: 2rem; text-align: center;
         border: 1px solid var(--border-glass); border-radius: var(--radius-md);
-        background: var(--bg-glass-hover);
+        background: var(--bg-glass); position: relative; overflow: hidden;
     }
-    .guest-cta h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.5rem; }
-    .guest-cta p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .cta-glow {
+        position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+        opacity: 0.5; animation: glowPulse 4s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+        0%, 100% { transform: scale(1); opacity: 0.3; }
+        50% { transform: scale(1.1); opacity: 0.5; }
+    }
+    .guest-cta h4 { 
+        font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; 
+        color: var(--text-main); margin-bottom: 0.5rem; position: relative;
+    }
+    .guest-cta p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; position: relative; }
     .btn-cta {
         display: inline-block; font-size: 0.8rem; font-weight: 600; 
         color: var(--bg-body); background: var(--text-main);
-        padding: 8px 20px; border-radius: 50px;
+        padding: 10px 24px; border-radius: 50px; position: relative;
+        transition: all 0.3s ease;
     }
-    .btn-cta:hover { background: var(--accent-primary); color: #fff; }
+    .btn-cta:hover { 
+        background: var(--accent-primary); color: #fff; 
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px var(--accent-glow);
+    }
 
-    @media(max-width: 800px) {
+    @media(max-width: 900px) {
         .magazine-layout { grid-template-columns: 1fr; gap: 3rem; }
-        .hero-img { height: 250px; }
+        .hero-img { height: 280px; }
+        .welcome-hero { padding: 2rem 0 3rem; }
     }
 </style>
 

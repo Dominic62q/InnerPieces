@@ -2,27 +2,208 @@
 
 {% block content %}
 
-<article class="container" style="max-width: 800px; padding-top: 3rem;">
+<style>
+    .article-wrapper {
+        max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem;
+    }
     
-    <header style="text-align: center; margin-bottom: 2.5rem;">
-        <span style="color: var(--accent-primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">{{ post.author.username }} &bull; {{ post.created_at|date:"F d, Y" }}</span>
-        <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 3rem; line-height: 1.1; margin: 1rem 0; color: var(--text-main);">{{ post.title }}</h1>
+    .article-header {
+        text-align: center; margin-bottom: 3rem;
+        animation: fadeInUp 0.8s ease;
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .article-meta {
+        display: inline-flex; align-items: center; gap: 0.75rem;
+        color: var(--accent-primary); font-size: 0.85rem;
+        text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+    
+    .article-meta .divider {
+        width: 4px; height: 4px; border-radius: 50%;
+        background: var(--accent-primary); opacity: 0.5;
+    }
+    
+    .article-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(2.2rem, 5vw, 3.5rem);
+        line-height: 1.15; color: var(--text-main);
+        margin-bottom: 1.5rem; font-weight: 400;
+    }
+    
+    .article-author {
+        display: inline-flex; align-items: center; gap: 1rem;
+        padding: 0.75rem 1.5rem; background: var(--bg-glass);
+        border: 1px solid var(--border-glass); border-radius: 50px;
+    }
+    
+    .author-avatar {
+        width: 36px; height: 36px; border-radius: 50%;
+        background: var(--accent-primary); color: var(--text-invert);
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Cormorant Garamond', serif; font-weight: 600;
+    }
+    
+    .author-info span {
+        display: block; font-size: 0.9rem; color: var(--text-main); font-weight: 500;
+    }
+    
+    .author-info small {
+        font-size: 0.75rem; color: var(--text-muted);
+    }
+    
+    .article-cover {
+        margin: 2.5rem 0 3rem;
+        border-radius: var(--radius-lg); overflow: hidden;
+        border: 1px solid var(--border-glass);
+        animation: fadeInUp 1s ease 0.2s both;
+    }
+    
+    .article-cover img {
+        width: 100%; height: auto; display: block;
+        transition: transform 0.5s ease;
+    }
+    
+    .article-cover:hover img {
+        transform: scale(1.02);
+    }
+    
+    .article-content {
+        font-size: 1.15rem; line-height: 1.9; color: var(--text-main);
+        animation: fadeInUp 1s ease 0.4s both;
+    }
+    
+    .article-content p {
+        margin-bottom: 1.75rem;
+    }
+    
+    .article-content p:first-of-type::first-letter {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 4rem; float: left; line-height: 1;
+        margin-right: 0.75rem; margin-top: 0.1rem;
+        color: var(--accent-primary); font-weight: 600;
+    }
+    
+    .article-content a {
+        color: var(--accent-primary); border-bottom: 1px solid var(--accent-glow);
+    }
+    
+    .article-content a:hover {
+        border-bottom-color: var(--accent-primary);
+    }
+    
+    .article-content blockquote {
+        margin: 2rem 0; padding: 1.5rem 2rem;
+        border-left: 3px solid var(--accent-primary);
+        background: var(--bg-glass); border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        font-style: italic; font-size: 1.1rem; color: var(--text-muted);
+    }
+    
+    .article-footer {
+        margin-top: 4rem; padding-top: 2rem;
+        border-top: 1px solid var(--border-glass);
+        display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 1rem;
+    }
+    
+    .back-link {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        font-size: 0.9rem; font-weight: 500; color: var(--text-muted);
+        padding: 0.75rem 1.5rem; background: var(--bg-glass);
+        border: 1px solid var(--border-glass); border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+        color: var(--text-main); border-color: var(--accent-primary);
+        transform: translateX(-5px);
+    }
+    
+    .share-buttons {
+        display: flex; gap: 0.5rem;
+    }
+    
+    .share-btn {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: var(--bg-glass); border: 1px solid var(--border-glass);
+        color: var(--text-muted); cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.3s ease; font-size: 0.9rem;
+    }
+    
+    .share-btn:hover {
+        background: var(--accent-primary); color: #fff;
+        border-color: var(--accent-primary); transform: translateY(-3px);
+    }
+    
+    @media (max-width: 768px) {
+        .article-wrapper { padding: 2rem 1rem; }
+        .article-content { font-size: 1.05rem; }
+        .article-footer { flex-direction: column; text-align: center; }
+    }
+</style>
+
+<article class="article-wrapper">
+    
+    <header class="article-header">
+        <div class="article-meta">
+            <span>{{ post.created_at|date:"F d, Y" }}</span>
+            <span class="divider"></span>
+            <span>{{ post.content|wordcount }} words</span>
+        </div>
+        
+        <h1 class="article-title">{{ post.title }}</h1>
+        
+        <div class="article-author">
+            <div class="author-avatar">{{ post.author.username|slice:":1"|upper }}</div>
+            <div class="author-info">
+                <span>{{ post.author.username }}</span>
+                <small>Storyteller</small>
+            </div>
+        </div>
     </header>
 
     {% if post.image %}
-    <div style="margin-bottom: 3rem;">
-        <img src="{{ post.image.url }}" style="width: 100%; border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+    <div class="article-cover">
+        <img src="{{ post.image.url }}" alt="{{ post.title }}">
     </div>
     {% endif %}
 
-    <div style="font-size: 1.1rem; line-height: 1.8; color: var(--text-main); margin-bottom: 4rem;">
+    <div class="article-content">
         {{ post.content|linebreaks }}
     </div>
 
-    <div style="text-align: center; padding-top: 2rem; border-top: 1px solid var(--border-glass);">
-        <a href="{% url 'blog_list' %}" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">&larr; Back to Explore</a>
-    </div>
+    <footer class="article-footer">
+        <a href="{% url 'blog_list' %}" class="back-link">
+            <span>←</span> Back to Explore
+        </a>
+        
+        <div class="share-buttons">
+            <button class="share-btn" title="Copy link" onclick="copyLink()">🔗</button>
+            <button class="share-btn" title="Share on Twitter" onclick="shareTwitter()">𝕏</button>
+        </div>
+    </footer>
 
 </article>
+
+<script>
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href);
+        if (window.showToast) {
+            window.showToast('Link copied to clipboard!', 'success');
+        }
+    }
+    
+    function shareTwitter() {
+        const text = encodeURIComponent('{{ post.title }}');
+        const url = encodeURIComponent(window.location.href);
+        window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+    }
+</script>
 
 {% endblock %}
