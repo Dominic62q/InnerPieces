@@ -174,12 +174,12 @@
                 <label>Cover Image</label>
                 {% if post.image %}
                 <div class="current-image">
-                    <small style="color: var(--text-muted);">Current image:</small>
-                    <img src="{{ post.image.url }}" alt="Current cover">
+                    <small style="color: var(--text-muted);">Current image path: {{ post.image }}</small>
+                    <img src="{{ post.image.url }}" alt="Current cover" onerror="this.parentElement.innerHTML='<p style=\'color: var(--text-muted); padding: 1rem;\'>⚠️ Image not found. Please upload a new image below.</p>'">
                 </div>
                 {% endif %}
                 {{ form.image }}
-                <p class="form-tip">Upload a new image to replace the current one (1200×630px recommended)</p>
+                <p class="form-tip"><strong>Important:</strong> To update the image, you must select and upload a new file (even if it's the same image). Simply clicking Update without selecting a file will keep the old reference.</p>
             </div>
             
             <div class="form-group">
