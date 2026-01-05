@@ -1,0 +1,211 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+
+<style>
+    .create-wrapper {
+        display: flex; min-height: 85vh; align-items: center; justify-content: center; padding: 2rem;
+    }
+    
+    .create-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+        border: 1px solid var(--border-glass);
+        width: 100%; max-width: 900px;
+        box-shadow: var(--shadow-soft); border-radius: var(--radius-lg); overflow: hidden;
+    }
+    
+    .create-header {
+        padding: 2.5rem 3rem 2rem;
+        border-bottom: 1px solid var(--border-glass);
+        text-align: center;
+        background: var(--bg-glass-hover);
+    }
+    
+    .create-header h1 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.5rem; font-weight: 400; color: var(--text-main);
+        margin-bottom: 0.5rem;
+    }
+    
+    .create-header p {
+        color: var(--text-muted); font-size: 1rem;
+    }
+    
+    .create-form {
+        padding: 2.5rem 3rem;
+    }
+    
+    .form-group {
+        margin-bottom: 2rem;
+    }
+    
+    .form-group label {
+        display: block; font-size: 0.75rem; text-transform: uppercase;
+        letter-spacing: 2px; color: var(--accent-primary);
+        margin-bottom: 10px; font-weight: 600;
+    }
+    
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group select {
+        width: 100%; padding: 15px 20px;
+        background: var(--bg-glass); border: 1px solid var(--border-glass);
+        border-radius: var(--radius-md); color: var(--text-main);
+        font-family: 'Outfit', sans-serif; font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input[type="text"]:focus,
+    .form-group textarea:focus {
+        outline: none; border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    
+    .form-group textarea {
+        min-height: 200px; resize: vertical; line-height: 1.8;
+    }
+    
+    .form-group input[type="file"] {
+        width: 100%; padding: 15px; background: var(--bg-glass);
+        border: 2px dashed var(--border-glass); border-radius: var(--radius-md);
+        color: var(--text-muted); cursor: pointer; transition: all 0.3s ease;
+    }
+    
+    .form-group input[type="file"]:hover {
+        border-color: var(--accent-primary);
+    }
+    
+    .current-image {
+        margin-top: 0.5rem; padding: 1rem;
+        background: var(--bg-glass-hover);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-glass);
+    }
+    
+    .current-image img {
+        max-width: 200px; border-radius: var(--radius-sm);
+        display: block; margin-top: 0.5rem;
+    }
+    
+    .checkbox-group {
+        display: flex; align-items: center; gap: 12px;
+        padding: 1rem; background: var(--bg-glass-hover);
+        border-radius: var(--radius-md); border: 1px solid var(--border-glass);
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 20px; height: 20px; accent-color: var(--accent-primary); cursor: pointer;
+    }
+    
+    .checkbox-group label {
+        margin: 0; text-transform: none; letter-spacing: 0;
+        font-size: 0.95rem; color: var(--text-main); font-weight: 400;
+    }
+    
+    .form-actions {
+        display: flex; gap: 1rem; margin-top: 1rem;
+    }
+    
+    .btn-submit {
+        flex: 1; padding: 18px;
+        background: var(--text-main); color: var(--bg-body);
+        border: none; border-radius: 50px; font-size: 0.9rem;
+        font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+        cursor: pointer; transition: all 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        background: var(--accent-primary); color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px var(--accent-glow);
+    }
+    
+    .btn-cancel {
+        flex: 1; padding: 18px;
+        background: transparent; color: var(--text-main);
+        border: 1px solid var(--border-glass); border-radius: 50px;
+        font-size: 0.9rem; font-weight: 600; letter-spacing: 2px;
+        text-transform: uppercase; cursor: pointer;
+        transition: all 0.3s ease; text-decoration: none;
+        text-align: center; display: block;
+    }
+    
+    .btn-cancel:hover {
+        background: var(--bg-glass-hover);
+        border-color: var(--accent-primary);
+    }
+    
+    .form-tip {
+        font-size: 0.8rem; color: var(--text-muted);
+        margin-top: 0.5rem; font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+        .create-form, .create-header { padding: 1.5rem; }
+        .create-header h1 { font-size: 2rem; }
+        .form-actions { flex-direction: column; }
+    }
+</style>
+
+<div class="create-wrapper">
+    <div class="create-card reveal-scale">
+        <div class="create-header">
+            <h1>✦ Edit Your Story</h1>
+            <p>Update your piece and share it with the community</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="create-form" id="edit-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Title</label>
+                {{ form.title }}
+                <p class="form-tip">Make it captivating - this is the first thing readers see</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Excerpt / Summary</label>
+                {{ form.excerpt }}
+                <p class="form-tip">A brief preview that appears in the story cards</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Cover Image</label>
+                {% if post.image %}
+                <div class="current-image">
+                    <small style="color: var(--text-muted);">Current image:</small>
+                    <img src="{{ post.image.url }}" alt="Current cover">
+                </div>
+                {% endif %}
+                {{ form.image }}
+                <p class="form-tip">Upload a new image to replace the current one (1200×630px recommended)</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Full Story</label>
+                {{ form.content }}
+            </div>
+            
+            <div class="form-group checkbox-group">
+                {{ form.published }}
+                <label>Publish immediately (visible to everyone)</label>
+            </div>
+            
+            <div class="form-actions">
+                <a href="{% url 'blog_detail' post.slug %}" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-submit">✦ Update Story</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('edit-form').addEventListener('submit', function() {
+        if (window.showToast) {
+            window.showToast('Updating your story...', 'info');
+        }
+    });
+</script>
+
+{% endblock %}

@@ -75,6 +75,50 @@ def create_post(request):
     
     return render(request, 'blog/create_post.html', {'form': form})
 
+@login_required(login_url='login')
+def edit_post(request, slug):
+    # Only the author can edit their post
+    post = get_object_or_404(Post, slug=slug)
+    
+    if post.author != request.user:
+        return redirect('blog_detail', slug=post.slug)
+    
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            updated_post = form.save(commit=False)
+            
+            # Update slug if title changed
+            if post.title != updated_post.title:
+                base_slug = slugify(updated_post.title)
+                slug = base_slug
+                counter = 1
+                while Post.objects.filter(slug=slug).exclude(pk=post.pk).exists():
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+                updated_post.slug = slug
+            
+            updated_post.save()
+            return redirect('blog_detail', slug=updated_post.slug)
+    else:
+        form = PostForm(instance=post)
+    
+    return render(request, 'blog/edit_post.html', {'form': form, 'post': post})
+
+@login_required(login_url='login')
+def delete_post(request, slug):
+    # Only the author can delete their post
+    post = get_object_or_404(Post, slug=slug)
+    
+    if post.author != request.user:
+        return redirect('blog_detail', slug=post.slug)
+    
+    if request.method == 'POST':
+        post.delete()
+        return redirect('profile')
+    
+    return render(request, 'blog/blog_detail.html', {'post': post})
+
 def about(request):
     return render(request, "blog/about.html")
 

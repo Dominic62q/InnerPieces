@@ -8,6 +8,8 @@ urlpatterns = [
     path('stories/', views.blog_list, name='blog_list'),
     path('stories/<slug:slug>/', views.blog_detail, name='blog_detail'),
     path('write/', views.create_post, name='create_post'),
+    path('edit/<slug:slug>/', views.edit_post, name='edit_post'),
+    path('delete/<slug:slug>/', views.delete_post, name='delete_post'),
     
     # The New Profile Page
     path('profile/', views.profile, name='profile'),
