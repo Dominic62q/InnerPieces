@@ -26,7 +26,7 @@ def register(request):
 
 @login_required(login_url='login')
 def profile(request):
-    user_posts = Post.objects.filter(author=request.user).order_by('-created_at')
+    user_posts = request.user.posts.all()  # Uses related_name for efficient query
     context = {
         'user_posts': user_posts,
         'post_count': user_posts.count(),
@@ -37,17 +37,22 @@ def profile(request):
 
 def home(request):
     # OPEN ACCESS: Everyone sees the latest posts
-    posts = Post.objects.filter(published=True).order_by('-created_at')[:6]
+    posts = Post.objects.filter(published=True).select_related('author').order_by('-created_at')[:6]
     return render(request, "blog/home.html", {"posts": posts})
 
 def blog_list(request):
-    # OPEN ACCESS: Everyone can browse the archive
-    posts = Post.objects.filter(published=True).order_by('-created_at')
+    # OPEN ACCESS: Everyone can browse the archive with pagination
+    from django.core.paginator import Paginator
+    posts_list = Post.objects.filter(published=True).select_related('author').order_by('-created_at')
+    paginator = Paginator(posts_list, 12)  # Show 12 posts per page
+    
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
     return render(request, "blog/blog_list.html", {"posts": posts})
 
 def blog_detail(request, slug):
     # OPEN ACCESS: Everyone can read stories
-    post = get_object_or_404(Post, slug=slug, published=True)
+    post = get_object_or_404(Post.objects.select_related('author'), slug=slug, published=True)
     return render(request, "blog/blog_detail.html", {"post": post})
 
 @login_required(login_url='login')

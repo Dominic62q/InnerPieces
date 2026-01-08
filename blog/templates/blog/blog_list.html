@@ -80,6 +80,33 @@
         </div>
         {% endfor %}
     </div>
+    
+    <!-- Pagination -->
+    {% if posts.has_other_pages %}
+    <div class="pagination-container">
+        <div class="pagination">
+            {% if posts.has_previous %}
+                <a href="?page=1" class="page-link" title="First page">«</a>
+                <a href="?page={{ posts.previous_page_number }}" class="page-link">‹</a>
+            {% else %}
+                <span class="page-link disabled">«</span>
+                <span class="page-link disabled">‹</span>
+            {% endif %}
+            
+            <span class="page-info">
+                Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+            </span>
+            
+            {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}" class="page-link">›</a>
+                <a href="?page={{ posts.paginator.num_pages }}" class="page-link" title="Last page">»</a>
+            {% else %}
+                <span class="page-link disabled">›</span>
+                <span class="page-link disabled">»</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <style>
@@ -251,6 +278,42 @@
         .card-meta { padding-top: 0.75rem; }
         
         .empty-state { padding: 3rem 1.5rem; }
+    }
+    
+    /* Pagination Styles */
+    .pagination-container {
+        margin-top: 3rem; display: flex; justify-content: center;
+    }
+    .pagination {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 1rem 1.5rem; background: var(--bg-glass);
+        border: 1px solid var(--border-glass); border-radius: var(--radius-md);
+    }
+    .page-link {
+        min-width: 40px; height: 40px; display: flex;
+        align-items: center; justify-content: center;
+        background: transparent; border: 1px solid var(--border-glass);
+        border-radius: 8px; color: var(--text-main);
+        text-decoration: none; font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .page-link:hover:not(.disabled) {
+        background: var(--accent-primary); color: #fff;
+        border-color: var(--accent-primary);
+        transform: translateY(-2px);
+    }
+    .page-link.disabled {
+        color: var(--text-muted); opacity: 0.3;
+        cursor: not-allowed;
+    }
+    .page-info {
+        padding: 0 1rem; font-size: 0.9rem;
+        color: var(--text-muted); white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+        .pagination { padding: 0.75rem 1rem; gap: 0.25rem; }
+        .page-link { min-width: 36px; height: 36px; font-size: 0.9rem; }
+        .page-info { padding: 0 0.5rem; font-size: 0.8rem; }
     }
     
     @media (max-width: 400px) {
