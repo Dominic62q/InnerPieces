@@ -14,9 +14,17 @@ from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Configure Cloudinary BEFORE anything else
+cloudinary_url = os.environ.get('CLOUDINARY_URL')
+if cloudinary_url:
+    cloudinary.config(cloudinary_url=cloudinary_url)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -149,17 +157,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Cloudinary configuration
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
-# Configure Cloudinary using CLOUDINARY_URL if available
-cloudinary_url = os.environ.get('CLOUDINARY_URL')
+# Cloudinary Storage configuration
 if cloudinary_url:
-    # Parse CLOUDINARY_URL: cloudinary://api_key:api_secret@cloud_name
-    cloudinary.config(cloudinary_url=cloudinary_url)
-    
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
         'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
