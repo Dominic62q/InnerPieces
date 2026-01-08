@@ -164,12 +164,8 @@ if cloudinary_url:
         'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
         'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
         'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-        'SECURE': True,  # Use HTTPS
     }
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    
-    # Override MEDIA_URL to use Cloudinary
-    MEDIA_URL = f'https://res.cloudinary.com/{os.environ.get("CLOUDINARY_CLOUD_NAME")}/'
 else:
     # Local development fallback
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
